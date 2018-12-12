@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 G = ["S’→ #S#",
      "S → bbARd",
      "S → abb",
@@ -5,9 +7,6 @@ G = ["S’→ #S#",
      "R → b",
      "A →  aAb",
      "A → d"]
-
-reader = None
-c = None
 
 
 class AnalysError(Exception):
@@ -21,30 +20,26 @@ def read():
         yield c
 
 
-def S1():
-    global c
-    global reader
+def S1(reader):
+    c = next(reader)
     print(G[0])
     if c != '#':
         raise AnalysError('symbol is not #')
-    c = next(reader)
-    S()
+
+    S(reader)
     c = next(reader)
     if c != '#':
         raise AnalysError('symbol is not #')
 
 
-def S():
-    global reader
-    global c
+def S(reader):
+    c = next(reader)
     if c == 'b':
         print(G[1])
         c = next(reader)
         if c == 'b':
-            c = next(reader)
-            A()
-            c = next(reader)
-            R()
+            A(reader)
+            R(reader)
             c = next(reader)
 
             if c != 'd':
@@ -62,36 +57,30 @@ def S():
         raise AnalysError(f"S → rules don't start with {c}")
 
 
-def R():
-    global reader
-    global c
+def R(reader):
+    c = next(reader)
     if c == 'b':
         print(G[4])
         return
     elif c == 'a':
         print(G[3])
-        c = next(reader)
-        R()
+        R(reader)
         c = next(reader)
         if c != '+':
             raise AnalysError(f"{c} is not +")
-        c = next(reader)
-        A()
+        A(reader)
     else:
         raise AnalysError(f'{c} is not in R rules')
 
 
-def A():
-    global reader
-    global c
-
+def A(reader):
+    c = next(reader)
     if c == 'd':
         print(G[6])
         return
     elif c == 'a':
         print(G[5])
-        c = next(reader)
-        A()
+        A(reader)
         c = next(reader)
         if c != "b":
             raise AnalysError(f"{c} is not b")
@@ -100,11 +89,9 @@ def A():
 
 
 def main():
-    global c
-    global reader
     reader = read()
-    c = reader.__next__()
-    S1()
+
+    S1(reader)
     print("ok")
 
 
